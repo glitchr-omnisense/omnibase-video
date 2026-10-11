@@ -21,35 +21,94 @@
     --video-gap: 1rem;
     --video-max: 1440px;
     --video-player-bg: #000;
+    /* The player's own shapes, apart from the site's cards: a soft frame, round controls, a white thumb. */
+    --video-player-radius: .9rem;
+    --video-player-control-radius: 999px;
+    --video-player-thumb: #fff;
 }
 
 /* ── The dock: the player, over a stage or in the corner ─────────────── */
 
-.video-dock { position: absolute; z-index: 40; background: var(--video-player-bg); border-radius: var(--video-radius); overflow: hidden; }
+.video-dock { position: absolute; z-index: 40; background: var(--video-player-bg); border-radius: var(--video-player-radius); overflow: hidden; }
 .video-dock[hidden] { display: none !important; }
-.video-dock .video-player { display: block; width: 100%; height: 100%; --media-font-family: var(--video-font); --media-primary-color: #fff; --media-secondary-color: transparent; --media-control-background: transparent; --media-control-hover-background: rgba(255, 255, 255, .12); --media-range-track-height: 4px; --media-range-bar-color: var(--video-accent-on-dark, var(--video-accent)); --media-menu-background: rgba(20, 20, 20, .92); }
+/*
+ * media-chrome's controls, in the player's shapes: round buttons the size of a fingertip, a pill for
+ * the bars, a round thumb, soft corners on the menu and the storyboard. Each control keeps its name
+ * for assistive technologies (its aria-label); the bubble that repeated it is off (notooltip in
+ * _dock.html.twig, and here): placed above a button, it laid "Pause" over the progress bar.
+ */
+.video-dock .video-player {
+    display: block; width: 100%; height: 100%;
+    --media-font-family: var(--video-font);
+    --media-font-size: .85rem;
+    --media-primary-color: #fff;
+    --media-secondary-color: transparent;
+    --media-control-background: transparent;
+    --media-control-hover-background: rgba(255, 255, 255, .16);
+    --media-control-padding: .55rem;
+    --media-control-height: 1.4rem;
+    --media-button-icon-width: 1.4rem;
+    --media-button-icon-height: 1.4rem;
+    --media-tooltip-display: none;
+    --media-focus-box-shadow: inset 0 0 0 2px var(--video-accent-on-dark, var(--video-accent));
+    --media-range-track-height: 4px;
+    --media-range-track-border-radius: 999px;
+    --media-range-track-background: rgba(255, 255, 255, .28);
+    --media-range-bar-color: var(--video-accent-on-dark, var(--video-accent));
+    --media-range-thumb-width: 14px;
+    --media-range-thumb-height: 14px;
+    --media-range-thumb-border-radius: 50%;
+    --media-range-thumb-background: var(--video-player-thumb);
+    --media-range-thumb-box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+    --media-time-range-buffered-color: rgba(255, 255, 255, .45);
+    --media-preview-border-radius: .6rem;
+    --media-preview-thumbnail-border-radius: .6rem;
+    --media-preview-time-border-radius: 999px;
+    --media-box-border-radius: 999px;
+    --media-menu-background: rgba(20, 20, 20, .94);
+    --media-menu-border-radius: .8rem;
+}
 .video-dock .video-player [slot="media"] { width: 100%; height: 100%; object-fit: contain; background: var(--video-player-bg); }
 .video-dock media-control-bar { width: 100%; }
-.video-player-buttons { background: linear-gradient(to top, rgba(0, 0, 0, .6), transparent); }
+/* One scrim under both bars, from the picture down into black: the time range on its upper part, the buttons on the lower. */
+.video-dock media-control-bar:has(> media-time-range) { padding: 1rem .9rem 0; background: linear-gradient(to top, rgba(0, 0, 0, .5), transparent); }
+.video-dock media-time-range { flex: 1; height: 1.75rem; padding: 0; border-radius: 999px; background: transparent; --media-range-padding-left: 0; --media-range-padding-right: 0; }
+.video-dock media-time-range:hover { --media-range-track-height: 6px; }
+.video-player-buttons { gap: .15rem; padding: 0 .5rem .5rem; background: linear-gradient(to top, rgba(0, 0, 0, .72), rgba(0, 0, 0, .5)); }
+/* Round, 44 px: a fingertip. */
+.video-player-buttons > :is(media-play-button, media-seek-backward-button, media-seek-forward-button, media-mute-button, media-settings-menu-button, media-pip-button, media-fullscreen-button), .video-player-cinema { flex: none; width: 2.75rem; height: 2.75rem; padding: 0; border-radius: var(--video-player-control-radius); }
+.video-player-buttons media-volume-range { flex: none; width: 5.75rem; height: 2.75rem; padding: 0 .75rem; border-radius: var(--video-player-control-radius); --media-range-padding-left: 0; --media-range-padding-right: 0; }
+.video-player-buttons media-time-display { height: 2.75rem; padding: 0 .6rem; border-radius: var(--video-player-control-radius); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Legible over a bright picture too: a soft shadow under the icons, the time and the bar. */
+.video-player-buttons > *, .video-dock media-time-range { filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .6)); }
 .video-player-spacer { flex: 1; }
-.video-player-cinema { display: inline-flex; align-items: center; justify-content: center; width: 2.6rem; height: 2.6rem; padding: .55rem; border: 0; background: transparent; color: #fff; cursor: pointer; }
-.video-player-cinema:hover { background: rgba(255, 255, 255, .12); }
-.video-player-cinema svg { width: 100%; height: 100%; }
+.video-player-cinema { display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: #fff; cursor: pointer; }
+.video-player-cinema:hover { background: rgba(255, 255, 255, .16); }
+.video-player-cinema:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--video-accent-on-dark, var(--video-accent)); }
+.video-player-cinema svg { width: 1.4rem; height: 1.4rem; }
+/* A phone: the essentials - play, ±10 s, sound on or off, the time, full screen; the volume itself is the device's. */
+.video-player:not([breakpointmd]) :is(media-volume-range, media-pip-button, .video-player-cinema) { display: none; }
+.video-player:not([breakpointsm]) media-settings-menu-button { display: none; }
+.video-player:not([breakpointsm]) .video-player-buttons { gap: 0; padding-inline: .25rem; }
+.video-player:not([breakpointsm]) media-control-bar:has(> media-time-range) { padding-inline: .65rem; }
+/* The corner: play, the sound, full screen on the picture; the bar below carries the title, play and close. */
+.video-dock.is-mini :is(media-seek-backward-button, media-seek-forward-button, media-time-display) { display: none; }
 .video-dock-bar { display: none; }
 
 .video-dock.is-mini { position: fixed; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); top: auto !important; left: auto !important; width: min(22rem, 62vw) !important; height: auto !important; box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, .35); display: grid; grid-template-rows: auto auto; }
 .video-dock.is-mini .video-player { aspect-ratio: 16 / 9; height: auto; }
-.video-dock.is-mini .video-dock-bar { display: flex; align-items: center; gap: .25rem; padding: .35rem .5rem .35rem .75rem; background: #111; color: #fff; font: 600 .82rem/1.2 var(--video-font); order: 2; }
+.video-dock.is-mini .video-dock-bar { display: flex; align-items: center; gap: .25rem; padding: .3rem .4rem .3rem .75rem; background: #111; color: #fff; font: 600 .82rem/1.2 var(--video-font); order: 2; }
 .video-dock-title { flex: 1; min-width: 0; color: #fff; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .video-dock-title:hover { text-decoration: underline; }
-.video-dock-button { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border: 0; border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
+.video-dock-button { display: inline-grid; place-items: center; flex: none; width: 2.5rem; height: 2.5rem; border: 0; border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
 .video-dock .video-when-playing, .video-dock.is-playing .video-when-paused { display: none; }
 .video-dock.is-playing .video-when-playing { display: inline; }
 .video-dock-button:hover, .video-dock-button:focus-visible { background: rgba(255, 255, 255, .14); }
+.video-dock-button:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--video-accent-on-dark, var(--video-accent)); }
 
 /* ── The stage, in the page ───────────────────────────────────────────── */
 
-.video-stage { position: relative; width: 100%; max-height: 78vh; background: var(--video-player-bg); border-radius: var(--video-radius); overflow: hidden; }
+.video-stage { position: relative; width: 100%; max-height: 78vh; background: var(--video-player-bg); border-radius: var(--video-player-radius); overflow: hidden; }
 .video-stage-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .9; }
 .video-stage--waiting .video-stage-message, .video-stage-embed { position: absolute; inset: 0; display: grid; place-content: center; gap: .75rem; padding: 1.5rem; text-align: center; color: #fff; background: rgba(0, 0, 0, .55); }
 .video-stage-embed p { margin: 0; max-width: 34rem; font-size: .9rem; opacity: .9; }

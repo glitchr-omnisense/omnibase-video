@@ -59,6 +59,15 @@ The bundle's pages extend `layout1.html.twig` and fill its `content`,
 `--video-font`, `--video-font-display`...): set them on your `:root`, for
 each theme.
 
+The player has shapes of its own, apart from the site's cards:
+`--video-player-bg` (behind the picture), `--video-player-radius` (its
+frame, `.9rem`), `--video-player-control-radius` (its buttons, round) and
+`--video-player-thumb` (the cursor of the bars, white); the bars and the
+focus ring take `--video-accent-on-dark` (then `--video-accent`). The
+controls carry their name for assistive technologies only: media-chrome's
+tooltips are off (`notooltip`), as placed above a button they would lay
+"Pause" over the progress bar.
+
 ## The front end
 
 The bundle's scripts import no package: the application does, and hands
