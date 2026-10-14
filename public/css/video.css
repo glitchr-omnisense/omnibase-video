@@ -117,14 +117,15 @@
 
 /* ── The watch page ───────────────────────────────────────────────────── */
 
-.video-watch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem); grid-template-areas: "stage aside" "main aside"; gap: var(--video-gap) calc(var(--video-gap) * 1.75); max-width: var(--video-max); margin: 0 auto; }
+/* The stage's row is as tall as the player (auto); what "À suivre" holds beyond the stage goes to the row of the title (1fr): with two auto rows a long aside was shared between them, and a band of nothing opened under the player. */
+.video-watch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem); grid-template-rows: auto 1fr; grid-template-areas: "stage aside" "main aside"; gap: var(--video-gap) calc(var(--video-gap) * 1.75); max-width: var(--video-max); margin: 0 auto; }
 .video-watch-stage { grid-area: stage; }
 .video-watch-main { grid-area: main; min-width: 0; }
 .video-watch-aside { grid-area: aside; min-width: 0; display: grid; align-content: start; gap: var(--video-gap); }
 html.video-cinema .video-watch { grid-template-areas: "stage stage" "main aside"; }
 html.video-cinema .video-watch-stage .video-stage { max-height: 82vh; }
 @media (max-width: 960px) {
-    .video-watch, html.video-cinema .video-watch { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "main" "aside"; }
+    .video-watch, html.video-cinema .video-watch { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "stage" "main" "aside"; }
 }
 .video-watch-title { margin: .9rem 0 .6rem; font: 700 clamp(1.25rem, 2.2vw, 1.6rem)/1.25 var(--video-font-display); overflow-wrap: anywhere; }
 .video-watch-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
