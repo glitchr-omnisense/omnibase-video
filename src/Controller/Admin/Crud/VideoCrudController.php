@@ -63,11 +63,11 @@ class VideoCrudController extends AbstractCrudController
         yield IdField::new('id')->onlyOnIndex();
         yield TextField::new('title', '@video.admin.video.title')->setColumns(8);
         yield StateField::new('state')->setColumns(4);
-        yield SlugField::new('slug')->setColumns(4)->hideOnIndex();
+        yield SlugField::new('slug')->setTargetFieldName('title')->setColumns(4)->hideOnIndex();
         yield SelectField::new('channel', '@video.admin.video.channel')->setClass(Channel::class)->setRequired(false)->setColumns(4);
-        yield DateTimeField::new('publishedAt', '@video.admin.video.published_at')->setColumns(4);
+        yield DateTimeField::new('publishedAt', '@video.admin.video.published_at')->setRequired(false)->setColumns(4);
         yield TextField::new('processing', '@video.admin.video.processing')->setColumns(3)->setFormTypeOption('disabled', true);
-        yield IntegerField::new('duration', '@video.admin.video.duration')->setColumns(3)->hideOnIndex();
+        yield IntegerField::new('duration', '@video.admin.video.duration')->setRequired(false)->setColumns(3)->hideOnIndex();
         yield IntegerField::new('views', '@video.admin.video.views')->setColumns(3)->setFormTypeOption('disabled', true);
         yield IntegerField::new('legacyViews', '@video.admin.video.legacy_views')->setColumns(3)->hideOnIndex()->setRequired(false);
         yield TextField::new('category', '@video.admin.video.category')->setColumns(4)->hideOnIndex()->setRequired(false);
@@ -76,7 +76,7 @@ class VideoCrudController extends AbstractCrudController
         yield BooleanField::new('commentsEnabled', '@video.admin.video.comments')->setColumns(3)->hideOnIndex();
         yield TextField::new('poster', '@video.admin.video.poster')->setColumns(12)->hideOnIndex()->setRequired(false);
         yield TextField::new('externalUrl', '@video.admin.video.external')->setColumns(12)->hideOnIndex()->setRequired(false);
-        yield TextareaField::new('content', '@video.admin.video.description')->hideOnIndex();
+        yield TextareaField::new('content', '@video.admin.video.description')->setRequired(false)->hideOnIndex();
         yield TextareaField::new('takedownReason', '@video.admin.video.takedown_reason')->onlyOnDetail();
         yield TextareaField::new('failure', '@video.admin.video.failure')->onlyOnDetail();
         yield AssociationField::new('owners', '@video.admin.video.owners')->allowMultipleChoices()->setRequired(false)->hideOnIndex();
