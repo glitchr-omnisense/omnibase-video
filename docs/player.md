@@ -56,9 +56,9 @@ and the timecodes work with any engine that gives the time.
 
 ## One thing at a time: `media:play`
 
-The player takes part in glitchr/omnibase's `media:play` contract through its
+The player takes part in omniscient/omnibase's `media:play` contract through its
 module (`window.MediaPlay`, `bundles/base/js/media.js` - the dock links it; a
-site may also bundle it, `import '../vendor/glitchr/omnibase/assets/media/media.js'`):
+site may also bundle it, `import '../vendor/omniscient/omnibase/assets/media/media.js'`):
 
 - it **joins** (`MediaPlay.join(VideoPlayer, pause)`): when anything else on
   the page starts sounding - omnibase/music's bar, another player, a plain

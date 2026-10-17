@@ -24,7 +24,7 @@ or an import (uploads off).
 
 | Thing | Where |
 |---|---|
-| Thread, likes, comments, their guard and form, reports, trash, `embed_url()` | glitchr/omnibase |
+| Thread, likes, comments, their guard and form, reports, trash, `embed_url()` | omniscient/omnibase |
 | CRUD screens, dashboard tiles, settings sections, the reports' screen | omnibase/admin |
 | `Video`, `Source`, `Channel`, `Subscription`, `VideoComment` (the moment), `WatchEvent`, `Playlist`, `Related` | this bundle |
 | Searching and playing other platforms' films (YouTube, Vimeo...) | not here: a `Source` keeps a reference (platform + id); the engines are another family's |

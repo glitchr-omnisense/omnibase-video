@@ -47,7 +47,7 @@ open, conversions running or failed, views of thirty days.
 
 # Demonstration accounts
 
-In glitchr/omnibase's `demo` environment (its `docs/20-architecture/demo.md`)
+In omniscient/omnibase's `demo` environment (its `docs/20-architecture/demo.md`)
 the sign-in page offers one button for each of a platform's people.
 `Base\Video\Demo\VideoDemoAccounts` declares them:
 
