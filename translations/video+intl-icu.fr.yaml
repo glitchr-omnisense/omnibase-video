@@ -17,6 +17,9 @@ player:
         play: 'Lire la vidéo {platform}'
         consent: 'Le lecteur de {platform} dépose ses propres cookies : il ne se charge qu’avec votre accord (« Lecteurs externes »).'
         elsewhere: 'Voir sur {platform}'
+        away:
+            title: 'Cette vidéo se regarde sur {platform}'
+            why: 'Son diffuseur ne la propose que là-bas, et pas dans tous les pays.'
 
 card:
     views: '{count, plural, =0 {aucune vue} one {# vue} other {{n} vues}}'

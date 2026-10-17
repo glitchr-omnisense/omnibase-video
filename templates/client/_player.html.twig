@@ -17,7 +17,11 @@
             <button type="button" class="video-button video-button--accent" data-video-embed-play><i class="fa-solid fa-play" aria-hidden="true"></i> {{ 'player.embed.play'|trans({platform: frame.provider|capitalize}) }}</button>
             <p>{{ 'player.embed.consent'|trans({platform: frame.provider|capitalize}) }} <a href="{{ playable.url }}" rel="noopener" target="_blank">{{ 'player.embed.elsewhere'|trans({platform: frame.provider|capitalize}) }}</a></p>
             {% else %}
-            <p><a href="{{ playable.url }}" rel="noopener" target="_blank">{{ 'player.embed.elsewhere'|trans({platform: playable.platform ?? ''}) }}</a></p>
+            {# Nothing this page can frame (the broadcaster keeps its player to its own site): where it plays. #}
+            {% set platform = playable.platform ?: (playable.url|split('/')[2] ?? '') %}
+            <p><strong>{{ 'player.embed.away.title'|trans({platform: platform}) }}</strong></p>
+            <p>{{ 'player.embed.away.why'|trans }}</p>
+            <p><a class="video-button video-button--accent" href="{{ playable.url }}" rel="noopener" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> {{ 'player.embed.elsewhere'|trans({platform: platform}) }}</a></p>
             {% endif %}
         </div>
     </div>
