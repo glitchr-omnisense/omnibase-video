@@ -68,6 +68,19 @@
                     </div>
                 </details>
 
+                {% set prefetchable = video.playableSource %}
+                {% if video.playable and prefetchable and prefetchable.kind in ['hls', 'remote-hls'] %}
+                {# Read ahead into this browser (player.js, prefetch.js): shown once the browser can keep it. #}
+                <button type="button" class="video-button" hidden aria-pressed="false"
+                        data-video-prefetch="{{ video.id }}" data-src="{{ prefetchable.kind == 'remote-hls' ? path('video_manifest', {slug: video.slug}) : prefetchable.url }}"
+                        data-label-idle="{{ 'watch.prefetch.idle'|trans }}" data-label-running="{{ 'watch.prefetch.running'|trans({percent: '__PERCENT__'}) }}"
+                        data-label-partial="{{ 'watch.prefetch.partial'|trans({percent: '__PERCENT__'}) }}" data-label-done="{{ 'watch.prefetch.done'|trans({size: '__SIZE__'}) }}"
+                        data-title-idle="{{ 'watch.prefetch.help'|trans }}" data-title-running="{{ 'watch.prefetch.stop'|trans }}" data-title-partial="{{ 'watch.prefetch.help'|trans }}"
+                        data-title-done="{{ 'watch.prefetch.remove'|trans }}" data-confirm-remove="{{ 'watch.prefetch.confirm_remove'|trans }}">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i> <span data-video-prefetch-label>{{ 'watch.prefetch.idle'|trans }}</span>
+                </button>
+                {% endif %}
+
                 {% if user %}
                 <details class="video-menu">
                     <summary class="video-button"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> {{ 'watch.save'|trans }}</summary>

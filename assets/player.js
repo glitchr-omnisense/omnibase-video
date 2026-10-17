@@ -28,6 +28,13 @@
  * A platform's film (an embed) plays in its own iframe in the page, once the
  * visitor accepted the EMBEDS feature of omnibase/consent.
  *
+ * READ AHEAD. A watch page's [data-video-prefetch] button reads the film
+ * into this browser's Cache API (prefetch.js): its playlists and every
+ * segment of one quality. <hls-video>'s hls.js reads that cache first, so a
+ * film read ahead plays without the network. The read goes on while the
+ * visitor browses (the dock is never reloaded); stopped, it resumes where it
+ * was.
+ *
  * ENGINES. The player's own commands (the dock, the beacons, resuming, the
  * timecodes) talk to an engine, never to a <video> directly. The native one
  * ("hls", "mp4": <hls-video> / <video> under media-chrome) is here; a
@@ -54,6 +61,8 @@
  * source: 'video', element}). The dock carries data-media-play="off": its own
  * <video> is the player's to announce, not a plain element of the page.
  */
+import Prefetch from './prefetch.js';
+
 var dock, controller, stage, current = null, beacon = null, layoutTimer = null, resizeObserver = null;
 var leaveMediaPlay = null;
 var started = false;
@@ -92,6 +101,8 @@ function nativeEngine(host) {
                 track.src = data.storyboard;
                 el.appendChild(track);
             }
+            // Read from what was read ahead first (prefetch.js), the network for the rest.
+            if (data.type === 'hls') el.config = Prefetch.config();
             el.setAttribute('src', data.src);
             host.prepend(el);
             el.addEventListener('loadedmetadata', function () { emit('ready'); }, { once: true });
@@ -291,6 +302,8 @@ function clicks(e) {
         stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
+    var prefetch = e.target.closest('[data-video-prefetch]');
+    if (prefetch) { e.preventDefault(); prefetchClick(prefetch); return; }
     if (e.target.closest('[data-video-cinema]')) { cinema(!document.documentElement.classList.contains('video-cinema')); return; }
     var share = e.target.closest('[data-video-share]');
     if (share) {
@@ -316,6 +329,49 @@ function clicks(e) {
     if (e.target.closest('[data-video-dock-toggle]')) {
         if (engine) { if (engine.paused()) engine.play(); else engine.pause(); }
     }
+}
+
+// ── Reading a film ahead ──────────────────────────────────────────────
+
+function megabytes(bytes) { return (bytes / 1048576).toLocaleString(document.documentElement.lang || undefined, { maximumFractionDigits: bytes < 10485760 ? 1 : 0 }); }
+
+/** A button as the read stands: idle, running (its percent), partial (stopped), done (its size). */
+function showPrefetch(button, state) {
+    var mode = !state || (!state.running && !state.total) ? 'idle' : state.running ? 'running' : state.complete ? 'done' : 'partial';
+    var percent = state && state.total ? Math.floor(state.done * 100 / state.total) : 0;
+    var label = button.querySelector('[data-video-prefetch-label]');
+    var icon = button.querySelector('i');
+    button.dataset.state = mode;
+    button.setAttribute('aria-pressed', mode === 'done' ? 'true' : 'false');
+    button.title = button.dataset['title' + mode.charAt(0).toUpperCase() + mode.slice(1)] || '';
+    if (label) label.textContent = (button.dataset['label' + mode.charAt(0).toUpperCase() + mode.slice(1)] || '').replace('__PERCENT__', percent).replace('__SIZE__', state ? megabytes(state.bytes || 0) : '');
+    if (icon) icon.className = 'fa-solid ' + ({ running: 'fa-circle-notch fa-spin', done: 'fa-circle-check' }[mode] || 'fa-download');
+}
+
+function refreshPrefetch(id, state) {
+    document.querySelectorAll('[data-video-prefetch]').forEach(function (button) { if (button.dataset.videoPrefetch === String(id)) showPrefetch(button, state); });
+}
+
+function prefetchButtons(root) {
+    (root || document).querySelectorAll('[data-video-prefetch]').forEach(function (button) {
+        button.hidden = !Prefetch.supported();
+        if (!button.hidden) Prefetch.status(button.dataset.videoPrefetch).then(function (state) { showPrefetch(button, state); });
+    });
+}
+
+function prefetchClick(button) {
+    var id = button.dataset.videoPrefetch;
+    var mode = button.dataset.state;
+    if (mode === 'running') { Prefetch.stop(id); return; }
+    if (mode === 'done') {
+        if (window.confirm(button.dataset.confirmRemove || '')) Prefetch.remove(id).then(function () { refreshPrefetch(id, null); });
+        return;
+    }
+    // Kept until the visitor removes it: the browser is asked not to evict it under pressure.
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+    var update = function (state) { refreshPrefetch(id, state); };
+    // Stopped or failed, the read's last update already says where it is.
+    Prefetch.start(id, button.dataset.src, update).catch(function () {});
 }
 
 /** A comment carries the moment the player was at when it was written. */
@@ -366,6 +422,7 @@ function scan() {
     if (next && controller) mount(next);
     else { place(); watchLayout(); }
     embeds();
+    prefetchButtons();
 }
 
 var VideoPlayer = {
@@ -393,7 +450,8 @@ var VideoPlayer = {
     engine: function () { return engine; },
     seek: seek,
     current: function () { return current; },
-    media: media
+    media: media,
+    prefetch: Prefetch
 };
 
 window.VideoPlayer = VideoPlayer;

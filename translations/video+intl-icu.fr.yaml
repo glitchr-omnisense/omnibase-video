@@ -48,6 +48,15 @@ watch:
     report: 'Signaler'
     next: 'À suivre'
     next_none: 'Rien d’autre pour l’instant.'
+    prefetch:
+        idle: 'Précharger'
+        running: 'Préchargement… {percent} %'
+        partial: 'Reprendre le préchargement ({percent} %)'
+        done: 'Préchargée · {size} Mo'
+        help: 'Charger toute la vidéo dans ce navigateur pour la regarder sans attendre le réseau'
+        stop: 'Arrêter le préchargement (il reprendra où il en était)'
+        remove: 'Retirer la vidéo préchargée de ce navigateur'
+        confirm_remove: 'Retirer cette vidéo préchargée de ce navigateur ?'
 
 channel:
     subscribers: '{count, plural, =0 {aucun abonné} one {# abonné} other {{n} abonnés}}'

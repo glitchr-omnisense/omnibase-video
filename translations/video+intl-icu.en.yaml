@@ -48,6 +48,15 @@ watch:
     report: 'Report'
     next: 'Up next'
     next_none: 'Nothing else for now.'
+    prefetch:
+        idle: 'Preload'
+        running: 'Preloading… {percent}%'
+        partial: 'Resume preloading ({percent}%)'
+        done: 'Preloaded · {size} MB'
+        help: 'Load the whole video into this browser to watch it without waiting for the network'
+        stop: 'Stop preloading (it will resume where it was)'
+        remove: 'Remove the preloaded video from this browser'
+        confirm_remove: 'Remove this preloaded video from this browser?'
 
 channel:
     subscribers: '{count, plural, =0 {no subscribers} one {# subscriber} other {{n} subscribers}}'
