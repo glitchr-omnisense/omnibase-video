@@ -3,7 +3,7 @@
     "description": "A video platform on omnibase: videos and channels, resumable uploads through tusd, HLS transcoding with ffmpeg, a player that keeps playing across pages, views, likes, timed comments, playlists, subscriptions, reports, a members' studio, local suggestions (Gorse optional) and a Typesense index.",
     "type": "symfony-bundle",
     "license": "MIT",
-    "homepage": "https://github.com/glitchr-studio/omnibase-video",
+    "homepage": "https://github.com/glitchr-omnisense/omnibase-video",
     "authors": [
         {
             "name": "Marco Meyer",
@@ -11,14 +11,14 @@
         }
     ],
     "support": {
-        "source": "https://github.com/glitchr-studio/omnibase-video",
-        "issues": "https://github.com/glitchr-studio/omnibase-video/issues"
+        "source": "https://github.com/glitchr-omnisense/omnibase-video",
+        "issues": "https://github.com/glitchr-omnisense/omnibase-video/issues"
     },
     "require": {
         "php": "^8.2",
         "doctrine/orm": "^2.15|^3.0",
         "omnibridge/symfony": "1.x-dev",
-        "omniscient/omnibase": "3.0.*-dev || 4.0.*-dev",
+        "omnisense/omnibase": "3.0.*-dev || 4.0.*-dev",
         "glitchr/typesense-bundle": "2.0.*-dev",
         "omnibase/admin": "dev-main",
         "symfony/config": "^7.0|^8.0",

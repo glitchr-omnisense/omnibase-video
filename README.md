@@ -1,6 +1,6 @@
 # Video
 
-A video platform on [omnibase](https://github.com/glitchr-studio/omnibase):
+A video platform on [omnibase](https://github.com/glitchr-omnisense/omnibase):
 members send their films and really run them, visitors watch, rate, comment
 and keep lists. Hosted video only - this bundle is the hosting side; the
 films of other platforms are referenced, never operated (see "Outside
@@ -19,7 +19,7 @@ sources" below).
 - **One player for the whole visit** (`media-chrome` + `hls-video-element`),
   outside `#content`: a transparent.js navigation never stops it; it shrinks
   to a corner and comes back to its page. Engines (`registerEngine`) and
-  omniscient/omnibase's `media:play` (`MediaPlay`) let other sources and other
+  omnisense/omnibase's `media:play` (`MediaPlay`) let other sources and other
   players live with it.
 - **Views** counted from the player's beacons (30 s or half the film, once a
   visitor every six hours), flushed by cron; **likes** on omnibase's `Like`;
