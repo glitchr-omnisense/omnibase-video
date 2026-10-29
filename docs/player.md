@@ -1,6 +1,6 @@
 ---
 title: The player
-order: 6
+order: 32
 ---
 
 # The player

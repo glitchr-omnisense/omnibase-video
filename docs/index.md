@@ -12,6 +12,7 @@ or an import (uploads off).
 | Page | |
 |---|---|
 | [Installation](installation.md) | the bundle, the routes, the layout, the front-end packages, the containers |
+| [The pages](pages.md) | every route: watching, channels, search, the library, the studio |
 | [Configuration](configuration.md) | every `video.*` option |
 | [Uploads](upload.md) | tusd, the upload token, the two hooks |
 | [Transcoding](transcoding.md) | the ladder, the files written, the worker |
@@ -19,6 +20,7 @@ or an import (uploads off).
 | [Views and suggestions](views-and-suggestions.md) | the view rule, the flush, `Related`, Gorse |
 | [Search](search.md) | the Typesense mapping, the fallback |
 | [Moderation and back office](moderation.md) | comments, reports, take-downs, roles, screens |
+| [Testing](testing.md) | the suite, what it checks |
 
 ## What is whose
 

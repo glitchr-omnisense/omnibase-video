@@ -1,9 +1,11 @@
 ---
 title: Moderation and back office
-order: 9
+order: 36
 ---
 
-# Comments
+# Moderation and back office
+
+## Comments
 
 A `VideoComment` is omnibase's `Comment` (states, one level of replies,
 Akismet, `CommentType`, `CommentGuard`) with `moment` - where the player
@@ -11,20 +13,20 @@ stood - and `pinned`. `1:23` typed in a text seeks the player. A film's
 author pins one, hides some, closes them (studio); the moderators approve,
 mark as spam, trash (back office).
 
-# Reports
+## Reports
 
 "Signaler" under a film (and per comment) makes an omnibase `Complaint`
 (`source: video`, `location: video:<id>` / `comment:<id>`, the reason in
 its context): handled on omnibase/admin's screen for them.
 
-# Take-downs
+## Take-downs
 
 `Moderation::takeDown($video, $reason)` (the back office's "Retirer", a
 reason is required): the film leaves every page, its authors are told why
 (the DSA's statement of reasons) and still see it; `restore()` puts it
 back, private.
 
-# Roles and screens
+## Roles and screens
 
 | | |
 |---|---|
@@ -45,7 +47,7 @@ The films and channels are written by `ROLE_ADMIN`; taking down, restoring
 and the comments by `ROLE_EDITOR`. The tile: comments waiting, reports
 open, conversions running or failed, views of thirty days.
 
-# Demonstration accounts
+## Demonstration accounts
 
 In omnisense/omnibase's `demo` environment (its `docs/20-architecture/demo.md`)
 the sign-in page offers one button for each of a platform's people.

@@ -1,9 +1,11 @@
 ---
 title: Views and suggestions
-order: 7
+order: 33
 ---
 
-# Views
+# Views and suggestions
+
+## Views
 
 A beacon lands on a `WatchEvent` (one a sitting). It becomes a **view**
 once `min(video.views.min_seconds, video.views.ratio x duration)` seconds
@@ -24,7 +26,7 @@ watched, completion, the retention curve, thirty days of views, where they
 came from (home, search, channel, playlist, suggest, subscriptions,
 history, external, direct).
 
-# Suggestions
+## Suggestions
 
 ```php
 interface SuggestInterface
@@ -39,7 +41,7 @@ interface SuggestInterface
 Inject `SuggestInterface`: it is `Suggestions`, which asks Gorse when
 `provider: gorse` and it answers, and the local ones otherwise.
 
-## Local (always there)
+### Local (always there)
 
 `video:related` (cron, at night) writes `Related`: for two listed films,
 
@@ -63,7 +65,7 @@ Another bundle adds what makes films close with an
 public function groups(array $videos): array   // [videoId => ['artist:12' => 3.0, 'episode:5' => 2.0]]
 ```
 
-## Gorse (optional)
+### Gorse (optional)
 
 [gorse-in-one](https://gorse.io) over its REST API (symfony/http-client):
 `POST /api/feedback` (through Messenger: `SuggestFeedback`),
