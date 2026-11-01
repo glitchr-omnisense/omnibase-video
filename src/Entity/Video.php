@@ -2,6 +2,7 @@
 
 namespace Base\Video\Entity;
 
+use Base\Contract\Link;
 use Base\Database\Attribute\DiscriminatorEntry;
 use Base\Entity\Thread;
 use Base\Entity\User;
@@ -58,7 +59,7 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
 
     public function __toLink(array $routeParameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): ?string
     {
-        return $this->getRouter()->generate('video_watch', array_merge($routeParameters, ['slug' => $this->getSlug()]), $referenceType);
+        return Link::to('video_watch', array_merge($routeParameters, ['slug' => $this->getSlug()]), $referenceType);
     }
 
     public function __typesense(): ?string
