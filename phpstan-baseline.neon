@@ -1,0 +1,73 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$user of static method Base\\Form\\Model\\CommentModel\:\:forUser\(\) expects App\\Entity\\User\|null, Base\\Entity\\User\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Client/WatchController.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<int\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Entity/Playlist.php
+
+		-
+			message: '#^Parameter \#1 \$owner of method Base\\Entity\\Thread\:\:__construct\(\) expects App\\Entity\\User\|null, Base\\Entity\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Video.php
+
+		-
+			message: '#^Instanceof between DateTimeInterface and DateTimeInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Repository/WatchEventRepository.php
+
+		-
+			message: '#^Parameter \#1 \$tag of method Base\\Entity\\Thread\:\:addTag\(\) expects App\\Entity\\Thread\\Tag, Base\\Entity\\Thread\\Tag given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Editor.php
+
+		-
+			message: '#^Parameter \#1 \$user of method Base\\Entity\\User\\Notification\:\:setUser\(\) expects App\\Entity\\User\|null, Base\\Entity\\User given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Notifier.php
+
+		-
+			message: '#^Parameter \#6 \$except of method Base\\Video\\Service\\Notifier\:\:tell\(\) expects Base\\Entity\\User\|null, App\\Entity\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Notifier.php
+
+		-
+			message: '#^Parameter \#1 \$thread of method Base\\Entity\\Thread\\Like\:\:setThread\(\) expects App\\Entity\\Thread\|null, Base\\Video\\Entity\\Video given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Ratings.php
+
+		-
+			message: '#^Parameter \#1 \$user of class Base\\Entity\\Thread\\Like constructor expects App\\Entity\\User\|null, Base\\Entity\\User given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Ratings.php
+
+		-
+			message: '#^Offset ''name'' on array\{height\: int, width\: int, bitrate\: int, maxrate\: int\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/Transcoder.php
+
+		-
+			message: '#^Expression on left side of \?\? is always null\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Suggest/Suggestions.php
+
+		-
+			message: '#^Result of method Base\\Video\\Suggest\\GorseSuggest\:\:feedback\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: src/Suggest/Suggestions.php

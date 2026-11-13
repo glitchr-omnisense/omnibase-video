@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
  * The watch page's grid (public/css/video.css): the stage's row is as tall as
  * the player, and what "À suivre" holds beyond it goes to the row of the
  * title. With two auto rows the aside, spanning both, shared its height
- * between them: some 170 px of nothing under the player on Taratata, desktop.
+ * between them: some 170 px of nothing under the player on a show's site, desktop.
  * On a phone the page is one column, its rows back to auto.
  */
 class WatchLayoutTest extends TestCase

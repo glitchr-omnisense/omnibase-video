@@ -1,0 +1,23 @@
+# The bundle's CI: glitchr-studio/ci's reusable workflow - the PHP 8.4 image, the bundle installed alone at the
+# default stability (dependencies resolved afresh, as a site gets them), composer validate, PHPUnit (units: no
+# kernel, no database), PHPStan (phpstan.neon, level 5, its baseline: anything new fails), then a consumer install
+# without require-dev in which the bundle's class must autoload.
+name: ci
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+  # release.yml runs this CI on a tag before the release.
+  workflow_call:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  package:
+    uses: glitchr-studio/ci/.github/workflows/php-package.yml@main
+    with:
+      smoke-class: 'Base\Video\VideoBundle'

@@ -1,0 +1,11 @@
+# PHPStan as glitchr-studio/ci's workflow runs it: level 5 on src/, the bundle installed alone (no application, so
+# no App\ class). phpstan-baseline.neon lists the violations there were at 1.0.0; the CI fails on any other. Fix
+# one, then drop its entry.
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+    reportUnmatchedIgnoredErrors: false

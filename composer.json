@@ -17,10 +17,11 @@
     "require": {
         "php": "^8.2",
         "doctrine/orm": "^2.15|^3.0",
-        "omnibridge/symfony": "1.x-dev",
-        "omnisense/omnibase": "3.0.*-dev || 4.0.*-dev || 5.0.*-dev",
-        "glitchr/typesense-bundle": "2.0.*-dev",
-        "omnibase/admin": "dev-main",
+        "doctrine/doctrine-bundle": "^2.11|^3.0",
+        "omnibridge/symfony": "^1.1",
+        "omnisense/omnibase": "^5.1",
+        "glitchr/typesense-bundle": "^2.0",
+        "omnibase/admin": "^1.0",
         "symfony/config": "^7.0|^8.0",
         "symfony/dependency-injection": "^7.0|^8.0",
         "symfony/form": "^7.0|^8.0",
@@ -50,6 +51,9 @@
             "Base\\Video\\Tests\\": "./tests"
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
+    }
 }

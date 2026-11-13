@@ -38,8 +38,35 @@ sources" below).
   channels, comments, a dashboard tile.
 
 ```bash
-composer require omnibase/video:dev-main
+composer require omnibase/video
 ```
+
+Stable releases follow semantic versioning: this installs the latest 1.x, with omnisense/omnibase 5.1 or later
+on Symfony (omnibridge/symfony) and Doctrine ORM (DoctrineBundle), omnibase/admin for the back office. No `minimum-stability` setting is needed.
+
+Under Symfony, register the bundle (and glitchr/typesense-bundle, which it requires) and its pages, then create its
+tables:
+
+```php
+// config/bundles.php
+Typesense\Bundle\TypesenseBundle::class => ['all' => true],
+Base\Video\VideoBundle::class => ['all' => true],
+```
+
+```yaml
+# config/routes.yaml
+video_controller:
+    resource: "@VideoBundle/src/Controller/Client"
+    type: attribute
+    prefix: /
+```
+
+```sh
+bin/console make:migration && bin/console doctrine:migrations:migrate
+```
+
+First use: signed in, open `/lien` to add a film by its address, or `/envoyer` to send one (that one needs tusd and
+an ffmpeg worker: [docs/installation.md](docs/installation.md), [docs/upload.md](docs/upload.md)).
 
 Documentation: [docs/](docs/index.md). Tests: `vendor/bin/phpunit` (units:
 no kernel, no database, no ffmpeg, no network).
