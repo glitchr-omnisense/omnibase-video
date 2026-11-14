@@ -4,7 +4,6 @@ namespace Base\Video\Controller\Client;
 
 use Base\Entity\User;
 use Base\Form\Model\CommentModel;
-use Base\Form\Type\CommentType;
 use Base\Service\CommentGuard;
 use Base\Video\Entity\Source;
 use Base\Video\Entity\Video;
@@ -22,6 +21,7 @@ use Base\Video\Service\Ratings;
 use Base\Video\Service\RemoteManifest;
 use Base\Video\Service\Views;
 use Base\Video\Suggest\SuggestInterface;
+use Omnibridge\Symfony\Omnibase\Form\Type\CommentType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormFactoryInterface;
