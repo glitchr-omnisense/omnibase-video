@@ -5,6 +5,13 @@ versions [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2] — 2026-11-14
+
+### Changed
+- Accepts omnisense/omnibase 6.0 beside 5.1 (`^5.1 || ^6.0`) and omnibridge/symfony 2.0 beside 1.1 (`^1.1 || ^2.0`): the
+  bundle names none of what 6.0 removes (the former names, BaseTrait's framework accessors, the dispatchers' former
+  hooks, the union-typed arguments), so the same code runs on both.
+
 ## [1.0.1] — 2026-11-14
 
 ### Changed
