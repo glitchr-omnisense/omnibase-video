@@ -3,6 +3,8 @@
 # one, then drop its entry.
 includes:
     - phpstan-baseline.neon
+    # The finder language (findByXNull(), sumOfXBy()...) and the entities' __call() accessors, as omnisense/omnibase describes them.
+    - vendor/omnisense/omnibase/extension.neon
 
 parameters:
     level: 5

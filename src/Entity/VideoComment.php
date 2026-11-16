@@ -5,7 +5,7 @@ namespace Base\Video\Entity;
 use Base\Database\Attribute\DiscriminatorEntry;
 use Base\Entity\Thread\Comment;
 use Base\Video\Repository\VideoCommentRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 
 /**
  * omnibase's comment (Base\Entity\Thread\Comment: its states, its replies

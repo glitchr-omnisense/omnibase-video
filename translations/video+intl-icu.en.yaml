@@ -395,6 +395,8 @@ admin:
         duration: 'Length (s)'
         views: 'Views'
         legacy_views: 'Original views'
+        venue: 'Where it was filmed'
+        recorded_at: 'Filmed on'
         category: 'Category'
         language: 'Language'
         license: 'Licence'

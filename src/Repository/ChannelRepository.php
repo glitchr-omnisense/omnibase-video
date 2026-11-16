@@ -4,24 +4,26 @@ namespace Base\Video\Repository;
 
 use Base\Entity\User;
 use Base\Video\Entity\Channel;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Base\Database\Repository\Finders;
+use Base\Database\Repository\ServiceEntityRepository;
 
-/** @extends ServiceEntityRepository<Channel> */
+/**
+ * @method Channel|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Channel|null findOneBy(array $criteria, ?array $orderBy = null)
+ * @method Channel[]    findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+ */
 class ChannelRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(Finders $finders)
     {
-        parent::__construct($registry, Channel::class);
+        parent::__construct($finders, Channel::class);
     }
 
     /** The first channel a member owns. */
     public function findOneOwnedBy(User $user): ?Channel
     {
-        return $this->createQueryBuilder('c')
-            ->innerJoin('c.owners', 'o')->andWhere('o = :user')->setParameter('user', $user)
-            ->orderBy('c.id', 'ASC')->setMaxResults(1)
-            ->getQuery()->getOneOrNullResult();
+        // The collection compared with one member: a join of it, as `JOIN c.owners o WHERE o = :user` was.
+        return $this->findOneBy(['owners' => $user], ['id' => 'ASC']);
     }
 
     /** A free address for $name: "ma-chaine", then "ma-chaine-2"... */
@@ -39,6 +41,6 @@ class ChannelRepository extends ServiceEntityRepository
     /** @return list<Channel> the most followed */
     public function findPopular(int $limit = 12): array
     {
-        return $this->createQueryBuilder('c')->orderBy('c.subscribers', 'DESC')->addOrderBy('c.id', 'ASC')->setMaxResults($limit)->getQuery()->getResult();
+        return $this->findBy([], ['subscribers' => 'DESC', 'id' => 'ASC'], $limit);
     }
 }

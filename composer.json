@@ -18,8 +18,8 @@
         "php": "^8.2",
         "doctrine/orm": "^2.15|^3.0",
         "doctrine/doctrine-bundle": "^2.11|^3.0",
-        "omnibridge/symfony": "^1.1 || ^2.0",
-        "omnisense/omnibase": "^5.1 || ^6.0",
+        "omnibridge/symfony": "^1.0",
+        "omnisense/omnibase": "^1.0",
         "glitchr/typesense-bundle": "^2.0",
         "omnibase/admin": "^1.0",
         "symfony/config": "^7.0|^8.0",
@@ -34,7 +34,10 @@
         "symfony/twig-bundle": "^7.0|^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.0|^12.0"
+        "omnibridge/doctrine": "^1.0",
+        "omnibridge/eloquent": "^1.0",
+        "phpunit/phpunit": "^11.0|^12.0",
+        "symfony/clock": "^6.2|^7.0|^8.0"
     },
     "suggest": {
         "ffmpeg": "The ffmpeg and ffprobe binaries on the worker transcode the uploads (HLS fMP4, poster, storyboard).",

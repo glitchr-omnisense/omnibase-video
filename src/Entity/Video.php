@@ -11,7 +11,7 @@ use Base\Service\Model\LinkableInterface;
 use Base\Video\Repository\VideoRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Typesense\Bundle\TypesenseInterface;
 use Typesense\Bundle\TypesenseTrait;
@@ -57,9 +57,17 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
         return ['fa-solid fa-film'];
     }
 
+    /**
+     * The film's page (video_watch), or no link where the site does not import the bundle's public pages (a musician's
+     * site keeps the films in its back office only): the admin's list links each film to it.
+     */
     public function __toLink(array $routeParameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): ?string
     {
-        return Link::to('video_watch', array_merge($routeParameters, ['slug' => $this->getSlug()]), $referenceType);
+        try {
+            return Link::to('video_watch', array_merge($routeParameters, ['slug' => $this->getSlug()]), $referenceType);
+        } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException) {
+            return null;
+        }
     }
 
     public function __typesense(): ?string
@@ -146,6 +154,13 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTimeInterface $takenDownAt = null;
+
+    /** Where and when it was filmed, when it says ("Philharmonie, Strasbourg", a concert's date): both optional. */
+    #[ORM\Column(length: 255, nullable: true)]
+    protected ?string $venue = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    protected ?\DateTimeInterface $recordedAt = null;
 
     public function __construct(?User $owner = null, ?Thread $parent = null, ?string $title = null, ?string $slug = null)
     {
@@ -312,6 +327,12 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
     public function setExternalUrl(?string $externalUrl): self { $this->externalUrl = $externalUrl ?: null; return $this; }
 
     public function getTakedownReason(): ?string { return $this->takedownReason; }
+    public function getVenue(): ?string { return $this->venue; }
+    public function setVenue(?string $venue): self { $this->venue = $venue ?: null; return $this; }
+
+    public function getRecordedAt(): ?\DateTimeInterface { return $this->recordedAt; }
+    public function setRecordedAt(?\DateTimeInterface $recordedAt): self { $this->recordedAt = $recordedAt; return $this; }
+
     public function getTakenDownAt(): ?\DateTimeInterface { return $this->takenDownAt; }
     public function isTakenDown(): bool { return null !== $this->takenDownAt; }
 

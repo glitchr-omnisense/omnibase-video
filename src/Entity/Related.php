@@ -3,7 +3,7 @@
 namespace Base\Video\Entity;
 
 use Base\Video\Repository\RelatedRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 
 /**
  * "À suivre": a video's neighbours and how close they are, computed at
@@ -34,12 +34,13 @@ class Related
     #[ORM\Column(type: 'datetime')]
     protected \DateTimeInterface $computedAt;
 
-    public function __construct(Video $video, Video $related, float $score)
+    /** @param \DateTimeInterface|null $computedAt when the suggestions were computed (now by default) */
+    public function __construct(Video $video, Video $related, float $score, ?\DateTimeInterface $computedAt = null)
     {
         $this->video = $video;
         $this->related = $related;
         $this->score = $score;
-        $this->computedAt = new \DateTime();
+        $this->computedAt = $computedAt ?? new \DateTime();
     }
 
     public function getId(): ?int { return $this->id; }

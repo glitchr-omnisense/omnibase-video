@@ -9,7 +9,8 @@ use Base\Video\Model\LinkDetails;
 use Base\Video\Model\VideoDetails;
 use Base\Entity\User;
 use Base\Service\Embeds;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Database\Repository\Repositories;
+use Base\Contract\UnitOfWork;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
@@ -20,7 +21,8 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 class Editor
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
+        private readonly Repositories $repositories,
         private readonly Pictures $pictures,
         private readonly Channels $channels,
         private readonly Embeds $embeds,
@@ -53,7 +55,7 @@ class Editor
             $video->setPoster($details->poster);
         }
         $video->poke();
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
     }
 
     /** A film of another platform: its page, framed through embed_url(); null when nothing can frame it. */
@@ -71,8 +73,8 @@ class Editor
         $video->addSource((new Source(Source::EMBED, (string) $details->url))->setReference($frame['provider'], $frame['src']));
         $video->setProcessing(Video::PROCESSING_NONE);
         $video->setVisibility(Video::VISIBILITY_PRIVATE);
-        $this->entityManager->persist($video);
-        $this->entityManager->flush();
+        $this->unitOfWork->persist($video);
+        $this->unitOfWork->flush();
 
         return $video;
     }
@@ -87,7 +89,7 @@ class Editor
     public function tags(array $keywords): array
     {
         $tags = [];
-        $repository = $this->entityManager->getRepository(Tag::class);
+        $repository = $this->repositories->of(Tag::class);
         $slugger = new AsciiSlugger();
         foreach ($keywords as $keyword) {
             $slug = strtolower((string) $slugger->slug($keyword));
@@ -97,7 +99,7 @@ class Editor
             $tag = $repository->findOneBy(['slug' => $slug]);
             if (!$tag) {
                 $tag = new Tag($keyword, $slug);
-                $this->entityManager->persist($tag);
+                $this->unitOfWork->persist($tag);
             }
             $tags[$slug] = $tag;
         }

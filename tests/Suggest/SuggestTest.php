@@ -13,7 +13,6 @@ use Base\Video\Suggest\GorseSuggest;
 use Base\Video\Suggest\LocalSuggest;
 use Base\Video\Suggest\RelatedCalculator;
 use Base\Video\Suggest\Suggestions;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -41,7 +40,7 @@ class SuggestTest extends TestCase
 
     private function calculator(int $perChannel = 2): RelatedCalculator
     {
-        return new RelatedCalculator($this->createStub(EntityManagerInterface::class), $this->createStub(VideoRepository::class), $this->createStub(PlaylistRepository::class), $this->createStub(WatchEventRepository::class), [], $perChannel);
+        return new RelatedCalculator($this->createStub(RelatedRepository::class), $this->createStub(VideoRepository::class), $this->createStub(PlaylistRepository::class), $this->createStub(WatchEventRepository::class), [], $perChannel);
     }
 
     public function testAPairsScoreFollowsTheFormula(): void

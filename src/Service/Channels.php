@@ -7,7 +7,7 @@ use Base\Video\Entity\Channel;
 use Base\Video\Entity\Subscription;
 use Base\Video\Repository\ChannelRepository;
 use Base\Video\Repository\SubscriptionRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Contract\UnitOfWork;
 
 /**
  * A member's channel, made the first time they publish (named after them,
@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class Channels
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly ChannelRepository $channels,
         private readonly SubscriptionRepository $subscriptions,
     ) {
@@ -29,7 +29,7 @@ class Channels
         if (!$channel && $create) {
             $name = trim((string) $user) ?: 'Ma chaîne';
             $channel = new Channel($name, $user, $this->channels->freeSlug($name));
-            $this->entityManager->persist($channel);
+            $this->unitOfWork->persist($channel);
         }
 
         return $channel;
@@ -48,13 +48,13 @@ class Channels
         }
         $subscription = $this->subscriptions->findOneFor($user, $channel);
         if ($subscription) {
-            $this->entityManager->remove($subscription);
+            $this->unitOfWork->remove($subscription);
         } else {
-            $this->entityManager->persist(new Subscription($user, $channel));
+            $this->unitOfWork->persist(new Subscription($user, $channel));
         }
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
         $channel->setSubscribers($this->subscriptions->countFor($channel));
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
 
         return null === $subscription;
     }

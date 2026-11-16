@@ -4,7 +4,7 @@ namespace Base\Video\Entity;
 
 use Base\Entity\User;
 use Base\Video\Repository\SubscriptionRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 
 /** A member following a channel: its new videos in their feed (/abonnements). */
 #[ORM\Entity(repositoryClass: SubscriptionRepository::class)]

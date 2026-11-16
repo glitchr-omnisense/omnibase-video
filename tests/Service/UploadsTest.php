@@ -7,8 +7,8 @@ use Base\Video\Repository\VideoRepository;
 use Base\Video\Service\Channels;
 use Base\Video\Service\Uploads;
 use Base\Video\Tests\Member;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
+use Base\Contract\UnitOfWork;
+use Base\Repository\Users;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -24,10 +24,8 @@ class UploadsTest extends TestCase
 
     private function uploads(?User $found = null, int $sent = 0, array $options = [], ?array &$dispatched = null): Uploads
     {
-        $users = $this->createStub(EntityRepository::class);
+        $users = $this->createStub(Users::class);
         $users->method('find')->willReturn($found);
-        $em = $this->createStub(EntityManagerInterface::class);
-        $em->method('getRepository')->willReturn($users);
         $videos = $this->createStub(VideoRepository::class);
         $videos->method('sumUploads')->willReturn($sent);
         $bus = new class($dispatched) implements MessageBusInterface {
@@ -43,7 +41,7 @@ class UploadsTest extends TestCase
             }
         };
 
-        return new Uploads($em, $videos, $this->createStub(Channels::class), $bus,
+        return new Uploads($this->createStub(UnitOfWork::class), $users, $videos, $this->createStub(Channels::class), $bus,
             new RateLimiterFactory(['id' => 'video_upload', 'policy' => 'fixed_window', 'limit' => 2, 'interval' => '1 day'], new InMemoryStorage()),
             'secret', ...($options + ['enabled' => true, 'quota' => 1000, 'maxSize' => 600, 'verifiedOnly' => true, 'directory' => sys_get_temp_dir(), 'ttl' => 3600]));
     }

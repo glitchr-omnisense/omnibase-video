@@ -3,14 +3,18 @@
 namespace Base\Video\Repository;
 
 use Base\Video\Entity\Source;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Base\Database\Repository\Finders;
+use Base\Database\Repository\ServiceEntityRepository;
 
-/** @extends ServiceEntityRepository<Source> */
+/**
+ * @method Source|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Source|null findOneBy(array $criteria, ?array $orderBy = null)
+ * @method Source[]    findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+ */
 class SourceRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(Finders $finders)
     {
-        parent::__construct($registry, Source::class);
+        parent::__construct($finders, Source::class);
     }
 }

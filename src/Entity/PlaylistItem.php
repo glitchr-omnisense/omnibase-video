@@ -2,7 +2,7 @@
 
 namespace Base\Video\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'video_playlist_item')]

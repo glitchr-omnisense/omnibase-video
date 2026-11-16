@@ -4,7 +4,7 @@ namespace Base\Video\Service;
 
 use Base\Video\Entity\Source;
 use Base\Video\Entity\Video;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Contract\UnitOfWork;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -19,7 +19,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class Processing
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly Storage $storage,
         private readonly Transcoder $transcoder,
         private readonly Notifier $notifier,
@@ -38,7 +38,7 @@ class Processing
 
         $video->setProcessing(Video::PROCESSING_RUNNING)->setFailure(null);
         $this->storage->directory($video);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
 
         $workspace = $this->storage->workspace($video);
         try {
@@ -71,7 +71,7 @@ class Processing
             $video->setVisibility(Video::VISIBILITY_PUBLIC);
         }
         $video->poke();
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
 
         if ($this->keepOriginals <= 0) {
             $this->removeUpload($source);
@@ -110,7 +110,7 @@ class Processing
     private function fail(Video $video, string $why): bool
     {
         $video->setProcessing(Video::PROCESSING_FAILED)->setFailure($why);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
         $this->notifier->failed($video);
 
         return false;

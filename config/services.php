@@ -35,13 +35,6 @@ return function (ContainerConfigurator $configurator) {
     $services->load('Base\\Video\\Controller\\Client\\', $src.'/Controller/Client/')
         ->tag('controller.service_arguments');
 
-    // The search index never fails a save (Search\SafeIndexer over typesense-bundle's listener).
-    $services->set('video.search.indexer', 'Base\\Video\\Search\\SafeIndexer')
-        ->decorate('typesense.listener.doctrine_indexer')
-        ->autowire(false)->autoconfigure(false)
-        ->args([service('typesense_manager'), service('request_stack'), service('parameter_bag')])
-        ->call('setLogger', [service('logger')->nullOnInvalid()]);
-
     // The suggestions: the provider configured (video.suggest.provider), the local one behind it.
     $services->alias('Base\\Video\\Suggest\\SuggestInterface', 'Base\\Video\\Suggest\\Suggestions');
 

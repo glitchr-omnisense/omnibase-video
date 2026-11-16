@@ -6,7 +6,8 @@ use Base\Entity\User;
 use Base\Video\Entity\Video;
 use Base\Video\Message\TranscodeVideo;
 use Base\Video\Repository\VideoRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Repository\Users;
+use Base\Contract\UnitOfWork;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
@@ -29,7 +30,8 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 class Uploads
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
+        private readonly Users $users,
         private readonly VideoRepository $videos,
         private readonly Channels $channels,
         private readonly MessageBusInterface $bus,
@@ -107,7 +109,7 @@ class Uploads
         $upload = (array) ($hook['Event']['Upload'] ?? []);
         $meta = (array) ($upload['MetaData'] ?? []);
         $token = $this->verify($meta['token'] ?? null);
-        $user = $token ? $this->entityManager->getRepository(User::class)->find($token['u']) : null;
+        $user = $token ? $this->users->find($token['u']) : null;
 
         if ('pre-create' === $type) {
             $replace = $token['r'] ?? null;
@@ -150,11 +152,11 @@ class Uploads
             $video->setSlug(self::slug());
             $video->setChannel($this->channels->forMember($user));
             $video->setVisibility(Video::VISIBILITY_PRIVATE);
-            $this->entityManager->persist($video);
+            $this->unitOfWork->persist($video);
         }
         $video->setUploadId($uploadId ?: null)->setUploadSize($size)->setOriginalName($filename ?: null)
             ->setProcessing(Video::PROCESSING_UPLOADED)->setFailure(null);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
 
         $this->bus->dispatch(new TranscodeVideo($video->getId(), $path));
 

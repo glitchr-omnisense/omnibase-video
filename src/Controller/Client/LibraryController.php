@@ -12,7 +12,7 @@ use Base\Video\Repository\SubscriptionRepository;
 use Base\Video\Repository\VideoRepository;
 use Base\Video\Repository\WatchEventRepository;
 use Base\Video\Security\VideoVoter;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Contract\UnitOfWork;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class LibraryController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly PlaylistRepository $playlists,
         private readonly VideoRepository $videos,
     ) {
@@ -88,14 +88,14 @@ class LibraryController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $playlist = (new Playlist($user, $details->title))->setDescription($details->description)->setVisibility($details->visibility);
-            $this->entityManager->persist($playlist);
+            $this->unitOfWork->persist($playlist);
             if ($slug = $request->query->get('ajouter')) {
                 $video = $this->videos->findOneBy(['slug' => (string) $slug]);
                 if ($video instanceof Video && $this->isGranted(VideoVoter::VIEW, $video)) {
                     $playlist->add($video);
                 }
             }
-            $this->entityManager->flush();
+            $this->unitOfWork->flush();
 
             return $this->redirectToRoute('video_playlist', ['slug' => $playlist->getSlug()]);
         }
@@ -124,7 +124,7 @@ class LibraryController extends AbstractController
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $playlist->setTitle($details->title)->setDescription($details->description)->setVisibility($details->visibility);
-                $this->entityManager->flush();
+                $this->unitOfWork->flush();
                 $this->addFlash('success', '@video.playlist.saved');
 
                 return $this->redirectToRoute('video_playlist', ['slug' => $slug]);
@@ -151,7 +151,7 @@ class LibraryController extends AbstractController
         }
         $in = $playlist->has($video);
         $in ? $playlist->remove($video) : $playlist->add($video);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
         if ($json) {
             return new JsonResponse(['in' => !$in, 'playlist' => $playlist->getSlug(), 'count' => $playlist->getItems()->count()]);
         }
@@ -166,8 +166,8 @@ class LibraryController extends AbstractController
     {
         $playlist = $this->playlists->findOneBy(['slug' => $slug]);
         if ($playlist instanceof Playlist && !$playlist->isLater() && $playlist->isOwnedBy($this->member()) && $this->isCsrfTokenValid('video', (string) $request->request->get('_token'))) {
-            $this->entityManager->remove($playlist);
-            $this->entityManager->flush();
+            $this->unitOfWork->remove($playlist);
+            $this->unitOfWork->flush();
             $this->addFlash('success', '@video.playlist.deleted');
         }
 
@@ -189,7 +189,7 @@ class LibraryController extends AbstractController
         if (false !== $at && isset($ids[$at + $step])) {
             [$ids[$at], $ids[$at + $step]] = [$ids[$at + $step], $ids[$at]];
             $playlist->reorder($ids);
-            $this->entityManager->flush();
+            $this->unitOfWork->flush();
         }
 
         return $this->redirectToRoute($playlist->isLater() ? 'video_later' : 'video_playlist', $playlist->isLater() ? [] : ['slug' => $slug]);

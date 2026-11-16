@@ -24,7 +24,7 @@ use Base\Video\Service\Editor;
 use Base\Video\Service\Pictures;
 use Base\Video\Service\Processing;
 use Base\Video\Service\Uploads;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Contract\UnitOfWork;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,7 +45,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class StudioController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly VideoRepository $videos,
         private readonly Uploads $uploads,
         private readonly Channels $channels,
@@ -175,7 +175,7 @@ class StudioController extends AbstractController
         if ($request->isMethod('POST') && $this->isCsrfTokenValid('video', (string) $request->request->get('_token'))) {
             if ($request->request->has('toggle')) {
                 $video->setCommentsEnabled(!$video->areCommentsEnabled());
-                $this->entityManager->flush();
+                $this->unitOfWork->flush();
             } elseif (($comment = $comments->find($request->request->getInt('comment'))) instanceof VideoComment && $comment->getThread()?->getId() === $video->getId()) {
                 match ((string) $request->request->get('action')) {
                     'pin' => $service->pin($comment, true),
@@ -217,8 +217,8 @@ class StudioController extends AbstractController
     {
         $video = $this->own($id);
         if ($this->isCsrfTokenValid('video', (string) $request->request->get('_token'))) {
-            $this->entityManager->remove($video);
-            $this->entityManager->flush();
+            $this->unitOfWork->remove($video);
+            $this->unitOfWork->flush();
             $this->addFlash('success', '@video.studio.trashed');
         }
 
@@ -252,7 +252,7 @@ class StudioController extends AbstractController
         $user = $this->member();
         $channel = $this->channels->forMember($user);
         if (!$channel->getId()) {
-            $this->entityManager->flush();
+            $this->unitOfWork->flush();
         }
         $details = ChannelDetails::of($channel);
         $form = $this->createForm(ChannelDetailsType::class, $details);
@@ -269,7 +269,7 @@ class StudioController extends AbstractController
                 if ($details->bannerFile) {
                     $channel->setBanner($pictures->channel($channel, $details->bannerFile, 'banner'));
                 }
-                $this->entityManager->flush();
+                $this->unitOfWork->flush();
                 $this->addFlash('success', '@video.studio.saved');
 
                 return $this->redirectToRoute('video_studio_channel');

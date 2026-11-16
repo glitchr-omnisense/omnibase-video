@@ -2,12 +2,13 @@
 
 namespace Base\Video\Suggest;
 
+use Base\Database\Type\Utc;
 use Base\Video\Entity\Related;
 use Base\Video\Entity\Video;
 use Base\Video\Repository\PlaylistRepository;
+use Base\Video\Repository\RelatedRepository;
 use Base\Video\Repository\VideoRepository;
 use Base\Video\Repository\WatchEventRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
@@ -35,7 +36,7 @@ class RelatedCalculator
 
     /** @param iterable<AffinityInterface> $affinities */
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly RelatedRepository $related,
         private readonly VideoRepository $videos,
         private readonly PlaylistRepository $playlists,
         private readonly WatchEventRepository $events,
@@ -50,35 +51,9 @@ class RelatedCalculator
         $videos = $this->videos->findAllListed();
         $groups = $this->groups($videos);
         $audiences = $this->audiences();
-        $rows = $this->score($videos, $groups, $audiences, $now ?? new \DateTime());
+        $rows = $this->score($videos, $groups, $audiences, $now ??= \DateTime::createFromImmutable(Utc::now()));
 
-        $connection = $this->entityManager->getConnection();
-        $metadata = $this->entityManager->getClassMetadata(Related::class);
-        $table = $connection->quoteSingleIdentifier($metadata->getTableName());
-        $video = $connection->quoteSingleIdentifier($metadata->getSingleAssociationJoinColumnName('video'));
-        $related = $connection->quoteSingleIdentifier($metadata->getSingleAssociationJoinColumnName('related'));
-        $score = $connection->quoteSingleIdentifier($metadata->getColumnName('score'));
-        $computed = $connection->quoteSingleIdentifier($metadata->getColumnName('computedAt'));
-
-        $connection->beginTransaction();
-        try {
-            $connection->executeStatement("DELETE FROM $table");
-            $at = ($now ?? new \DateTime())->format('Y-m-d H:i:s');
-            foreach (array_chunk($rows, 500) as $chunk) {
-                $values = [];
-                $parameters = [];
-                foreach ($chunk as [$a, $b, $s]) {
-                    $values[] = '(?, ?, ?, ?)';
-                    array_push($parameters, $a, $b, $s, $at);
-                }
-                $connection->executeStatement("INSERT INTO $table ($video, $related, $score, $computed) VALUES ".implode(', ', $values), $parameters);
-            }
-            $connection->commit();
-        } catch (\Throwable $e) {
-            $connection->rollBack();
-
-            throw $e;
-        }
+        $this->related->replaceAll($rows, $now);
 
         return \count($rows);
     }

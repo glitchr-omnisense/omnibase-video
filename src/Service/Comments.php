@@ -7,7 +7,7 @@ use Base\Form\Model\CommentModel;
 use Base\Video\Entity\Video;
 use Base\Video\Entity\VideoComment;
 use Base\Video\Repository\VideoCommentRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Contract\UnitOfWork;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 class Comments
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly VideoCommentRepository $comments,
         private readonly Notifier $notifier,
         #[Autowire('%video.comments.auto_approve%')] private readonly bool $autoApprove = true,
@@ -41,8 +41,8 @@ class Comments
         if ($user && $video->isOwnedBy($user) && $comment->isPending()) {
             $comment->approve();
         }
-        $this->entityManager->persist($comment);
-        $this->entityManager->flush();
+        $this->unitOfWork->persist($comment);
+        $this->unitOfWork->flush();
         $this->notifier->commented($comment);
 
         return $comment;
@@ -55,7 +55,7 @@ class Comments
             $this->comments->unpinAll($video);
         }
         $comment->setPinned($pinned);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
     }
 
     /** Hidden by the film's author (omnibase's trash state), or shown again. */
@@ -65,6 +65,6 @@ class Comments
         if ($hidden) {
             $comment->setPinned(false);
         }
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
     }
 }

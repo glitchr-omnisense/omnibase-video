@@ -5,8 +5,9 @@ namespace Base\Video\Service;
 use Base\Entity\Thread\Like;
 use Base\Entity\User;
 use Base\Video\Entity\Video;
-use Doctrine\DBAL\LockMode;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Database\Attribute\Backend\Backends;
+use Base\Database\Backend\RowLocks;
+use Base\Contract\UnitOfWork;
 
 /**
  * "J'aime" and "je n'aime pas", on omnibase's own Like (Base\Entity\Thread\Like,
@@ -21,7 +22,7 @@ class Ratings
     public const DOWN = 'fa-solid fa-thumbs-down';
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly Views $views,
     ) {
     }
@@ -59,11 +60,9 @@ class Ratings
      */
     public function rate(User $user, Video $video, string $rating): ?string
     {
-        $this->entityManager->beginTransaction();
-        try {
-            if ($video->getId()) {
-                $this->entityManager->lock($video, LockMode::PESSIMISTIC_WRITE);
-            }
+        // The film's row locked for writing while the rating is decided (RowLocks: SELECT ... FOR UPDATE on
+        // Doctrine); a film not written yet has no row, its work runs in a plain transaction.
+        $work = function () use ($user, $video, $rating): ?string {
             $existing = null;
             foreach ($video->getLikes() as $like) {
                 if ($like->getUser()?->getId() === $user->getId()) {
@@ -77,7 +76,7 @@ class Ratings
                 if ($existing) {
                     $video->removeLike($existing);
                     $user->getLikes()->removeElement($existing);
-                    $this->entityManager->remove($existing);
+                    $this->unitOfWork->remove($existing);
                 }
             } elseif ($existing) {
                 $existing->setIcon($icon);
@@ -87,16 +86,16 @@ class Ratings
                 $like->setIcon($icon);
                 $like->setThread($video);
                 $video->getLikes()->add($like);
-                $this->entityManager->persist($like);
+                $this->unitOfWork->persist($like);
                 $result = 'down' === $rating ? 'down' : 'up';
             }
-            $this->entityManager->flush();
-            $this->entityManager->commit();
-        } catch (\Throwable $e) {
-            $this->entityManager->rollback();
+            $this->unitOfWork->flush();
 
-            throw $e;
-        }
+            return $result;
+        };
+        $result = $video->getId()
+            ? Backends::of($this->unitOfWork, RowLocks::class)->locked($video, $work)
+            : $this->unitOfWork->transactional(static fn () => $work());
         if ('up' === $result) {
             $this->views->feedback('like', $user, $video);
         }

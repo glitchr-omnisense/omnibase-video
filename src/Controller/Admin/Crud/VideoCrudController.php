@@ -9,6 +9,7 @@ use Base\Admin\Controller\AbstractCrudController;
 use Base\Admin\Filter\Filters;
 use Base\Field\AssociationField;
 use Base\Field\BooleanField;
+use Base\Field\DateField;
 use Base\Field\DateTimeField;
 use Base\Field\IdField;
 use Base\Field\IntegerField;
@@ -76,6 +77,8 @@ class VideoCrudController extends AbstractCrudController
         yield BooleanField::new('commentsEnabled', '@video.admin.video.comments')->setColumns(3)->hideOnIndex();
         yield TextField::new('poster', '@video.admin.video.poster')->setColumns(12)->hideOnIndex()->setRequired(false);
         yield TextField::new('externalUrl', '@video.admin.video.external')->setColumns(12)->hideOnIndex()->setRequired(false);
+        yield TextField::new('venue', '@video.admin.video.venue')->setColumns(8)->hideOnIndex()->setRequired(false);
+        yield DateField::new('recordedAt', '@video.admin.video.recorded_at')->setColumns(4)->hideOnIndex()->setRequired(false);
         yield TextareaField::new('content', '@video.admin.video.description')->setRequired(false)->hideOnIndex();
         yield TextareaField::new('takedownReason', '@video.admin.video.takedown_reason')->onlyOnDetail();
         yield TextareaField::new('failure', '@video.admin.video.failure')->onlyOnDetail();

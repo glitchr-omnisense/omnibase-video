@@ -395,6 +395,8 @@ admin:
         duration: 'Durée (s)'
         views: 'Vues'
         legacy_views: 'Vues d’origine'
+        venue: 'Lieu du tournage'
+        recorded_at: 'Tourné le'
         category: 'Catégorie'
         language: 'Langue'
         license: 'Licence'

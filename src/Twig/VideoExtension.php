@@ -2,6 +2,7 @@
 
 namespace Base\Video\Twig;
 
+use Base\Database\Type\Utc;
 use Base\Entity\User;
 use Base\Video\Entity\Channel;
 use Base\Video\Entity\Video;
@@ -121,7 +122,7 @@ class VideoExtension extends AbstractExtension
         if (!$date) {
             return '';
         }
-        $seconds = max(0, ($now ?? new \DateTime())->getTimestamp() - $date->getTimestamp());
+        $seconds = max(0, ($now ?? Utc::now())->getTimestamp() - $date->getTimestamp());
         [$unit, $n] = match (true) {
             $seconds < 60 => ['now', 0],
             $seconds < 3600 => ['minutes', intdiv($seconds, 60)],

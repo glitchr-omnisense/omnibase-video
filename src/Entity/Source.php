@@ -3,7 +3,7 @@
 namespace Base\Video\Entity;
 
 use Base\Video\Repository\SourceRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 
 /**
  * Where a video plays from. One MASTER a video (the address the player is

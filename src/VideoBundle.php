@@ -3,7 +3,8 @@
 namespace Base\Video;
 
 use Base\Traits\SingletonTrait;
-use Omnibridge\Symfony\Omnibase\Bundle\AbstractBaseBundle;
+use Base\Bundle\AbstractBaseBundle;
+use Base\Video\DependencyInjection\SafeSearchPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -36,5 +37,8 @@ class VideoBundle extends AbstractBaseBundle
         // declare App\Entity\Video\Video extending ours and take over.
         $this->setMapping($this->getPath().'/src/Entity', 'Base\Video\Entity', 'App\Entity\Video');
         $this->setMapping($this->getPath().'/src/Repository', 'Base\Video\Repository', 'App\Repository\Video');
+
+        // The search is optional: an unreachable Typesense never fails a save, no Typesense at all leaves search off.
+        $container->addCompilerPass(new SafeSearchPass());
     }
 }

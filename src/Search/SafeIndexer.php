@@ -2,18 +2,19 @@
 
 namespace Base\Video\Search;
 
-use Doctrine\ORM\Event\PostFlushEventArgs;
 use Psr\Log\LoggerInterface;
 use Typesense\Bundle\EventListener\TypesenseIndexer;
 
 /**
- * glitchr/typesense-bundle's indexer, made safe for a search server that is
- * down: whatever the client throws (the bundle only catches its own and
- * php-http's exceptions - a PSR-18 network error from symfony/http-client
- * went through and failed the page that saved a film), the index misses a
- * change, the save does not fail and no visitor is told about Typesense.
- * `bin/console typesense:action upsert` fills the index again. It also
- * forgets what it has sent, so a long-running worker does not send it twice.
+ * glitchr/typesense-bundle's indexer, made safe for a search server that is down: whatever the client throws (the
+ * bundle catches its own and php-http's exceptions only - a PSR-18 network error from symfony/http-client went
+ * through and failed the page, or the fixtures, that saved a film), the index misses a change, the save goes on, a
+ * warning is logged and the bundle's own report (a flash) is made once. `bin/console typesense:action upsert` fills
+ * the index again. What it sent is forgotten either way, so a long-running worker does not send it twice.
+ *
+ * Every indexer of the bundle is this class where the bundle is installed (Doctrine's listener and the one the
+ * neutral lifecycle events reach): VideoBundle's compiler pass sets it; without the bundle, nothing is indexed and
+ * omnibase/video works without search.
  */
 class SafeIndexer extends TypesenseIndexer
 {
@@ -24,7 +25,7 @@ class SafeIndexer extends TypesenseIndexer
         $this->logger = $logger;
     }
 
-    public function postFlush(PostFlushEventArgs $args)
+    public function flush(): void
     {
         $transactions = $this->transactions;
         $this->transactions = [];
@@ -35,6 +36,10 @@ class SafeIndexer extends TypesenseIndexer
             } catch (\Throwable $e) {
                 if (!$failed) {
                     $this->logger?->warning('The search index missed a change (Typesense): {message}', ['message' => $e->getMessage()]);
+                    try {
+                        $this->onError && ($this->onError)($e);
+                    } catch (\Throwable) {
+                    }
                 }
                 $failed = true;
             }

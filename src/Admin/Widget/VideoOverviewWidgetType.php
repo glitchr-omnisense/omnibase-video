@@ -9,7 +9,7 @@ use Base\Video\Entity\Video;
 use Base\Video\Repository\VideoCommentRepository;
 use Base\Video\Repository\VideoRepository;
 use Base\Video\Repository\WatchEventRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Database\Repository\Repositories;
 
 /**
  * The platform at a glance: comments waiting, reports open, films being
@@ -22,7 +22,7 @@ final class VideoOverviewWidgetType implements DashboardWidgetTypeInterface
         private readonly VideoRepository $videos,
         private readonly VideoCommentRepository $comments,
         private readonly WatchEventRepository $events,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly Repositories $repositories,
     ) {
     }
 
@@ -42,10 +42,7 @@ final class VideoOverviewWidgetType implements DashboardWidgetTypeInterface
 
         return [
             'pending' => $this->comments->countPending(),
-            'reports' => (int) $this->entityManager->createQueryBuilder()->select('COUNT(c.id)')->from(Complaint::class, 'c')
-                ->andWhere('c.status = :open')->setParameter('open', Complaint::OPEN)
-                ->andWhere('c.source = :source')->setParameter('source', 'video')
-                ->getQuery()->getSingleScalarResult(),
+            'reports' => $this->repositories->of(Complaint::class)->count(['status' => Complaint::OPEN, 'source' => 'video']),
             'running' => ($processing[Video::PROCESSING_UPLOADED] ?? 0) + ($processing[Video::PROCESSING_RUNNING] ?? 0),
             'failed' => $processing[Video::PROCESSING_FAILED] ?? 0,
             'views' => $this->events->countViewsSince(30),

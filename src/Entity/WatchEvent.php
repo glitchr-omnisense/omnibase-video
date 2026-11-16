@@ -4,7 +4,7 @@ namespace Base\Video\Entity;
 
 use Base\Entity\User;
 use Base\Video\Repository\WatchEventRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Base\Mapping as ORM;
 
 /**
  * One sitting in front of a film: who (an account, or a visitor's hashed

@@ -7,7 +7,8 @@ use Base\Entity\User\Complaint;
 use Base\Video\Entity\Channel;
 use Base\Video\Entity\Video;
 use Base\Video\Entity\VideoComment;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Database\Repository\Repositories;
+use Base\Contract\UnitOfWork;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -22,7 +23,8 @@ class Moderation
     public const REASONS = ['illegal', 'violence', 'hate', 'sexual', 'harassment', 'spam', 'copyright', 'privacy', 'other'];
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
+        private readonly Repositories $repositories,
         private readonly UrlGeneratorInterface $urls,
         private readonly Notifier $notifier,
     ) {
@@ -47,8 +49,8 @@ class Moderation
             $complaint->setTargetName($subject->getDisplayName());
         }
         $complaint->setContext(['kind' => $kind, 'id' => $id, 'reason' => $reason, 'url' => $url]);
-        $this->entityManager->persist($complaint);
-        $this->entityManager->flush();
+        $this->unitOfWork->persist($complaint);
+        $this->unitOfWork->flush();
 
         return $complaint;
     }
@@ -56,14 +58,14 @@ class Moderation
     public function takeDown(Video $video, string $reason): void
     {
         $video->takeDown($reason);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
         $this->notifier->takenDown($video);
     }
 
     public function restore(Video $video): void
     {
         $video->restore();
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
     }
 
     /** The video or comment a complaint of ours is about. */
@@ -73,10 +75,10 @@ class Moderation
             return null;
         }
 
-        return $this->entityManager->find(match ($m[1]) {
+        return $this->repositories->of(match ($m[1]) {
             'video' => Video::class,
             'comment' => VideoComment::class,
             default => Channel::class,
-        }, (int) $m[2]);
+        })->find((int) $m[2]);
     }
 }

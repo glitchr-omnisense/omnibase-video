@@ -93,7 +93,7 @@ class VideoCommentCrudController extends AbstractCrudController
         /** @var VideoComment $comment */
         $comment = $this->findEntity($entityId);
         $change($comment);
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
         $this->addFlash('success', $flash);
 
         return $this->redirectToIndex();

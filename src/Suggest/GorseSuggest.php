@@ -2,6 +2,7 @@
 
 namespace Base\Video\Suggest;
 
+use Base\Database\Type\Utc;
 use Base\Entity\User;
 use Base\Service\SettingBagInterface;
 use Base\Video\Entity\Video;
@@ -51,7 +52,7 @@ class GorseSuggest implements SuggestInterface
             'FeedbackType' => $type,
             'UserId' => $userId,
             'ItemId' => (string) $videoId,
-            'Timestamp' => ($at ?? new \DateTimeImmutable())->format(\DATE_ATOM),
+            'Timestamp' => ($at ?? Utc::now())->format(\DATE_ATOM),
         ]]]);
     }
 
@@ -62,7 +63,7 @@ class GorseSuggest implements SuggestInterface
 
     public function session(array $videoIds, int $limit = 24): array
     {
-        $now = (new \DateTimeImmutable())->format(\DATE_ATOM);
+        $now = Utc::now()->format(\DATE_ATOM);
         $feedback = array_map(fn ($id) => ['FeedbackType' => 'read', 'UserId' => '', 'ItemId' => (string) $id, 'Timestamp' => $now], \array_slice($videoIds, 0, 20));
         $scores = (array) $this->call('POST', '/api/session/recommend', ['query' => ['n' => $limit], 'json' => $feedback]);
 

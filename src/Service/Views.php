@@ -2,12 +2,14 @@
 
 namespace Base\Video\Service;
 
+use Base\Database\Type\Utc;
 use Base\Entity\User;
 use Base\Video\Entity\Video;
 use Base\Video\Entity\WatchEvent;
 use Base\Video\Message\SuggestFeedback;
 use Base\Video\Repository\WatchEventRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Base\Video\Repository\VideoRepository;
+use Base\Contract\UnitOfWork;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -26,8 +28,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 class Views
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UnitOfWork $unitOfWork,
         private readonly WatchEventRepository $events,
+        private readonly VideoRepository $videos,
         #[Autowire(service: 'video.cache')] private readonly CacheInterface $cache,
         private readonly MessageBusInterface $bus,
         #[Autowire('%kernel.secret%')] private readonly string $secret,
@@ -67,7 +70,7 @@ class Views
         $event = $this->events->findOneByToken($video, $token);
         if (!$event) {
             $event = new WatchEvent($video, $token, $visitor, $user, (string) ($beacon['source'] ?? 'direct'), self::referrer($beacon['referrer'] ?? null));
-            $this->entityManager->persist($event);
+            $this->unitOfWork->persist($event);
             $this->feedback('read', $user, $video);
         } elseif ($event->getVisitor() !== $visitor) {
             // Somebody else's sitting: not theirs to move.
@@ -92,7 +95,7 @@ class Views
                 $this->feedback('watch', $user, $video);
             }
         }
-        $this->entityManager->flush();
+        $this->unitOfWork->flush();
 
         return $event;
     }
@@ -104,33 +107,12 @@ class Views
         if (!$counts) {
             return 0;
         }
-        $connection = $this->entityManager->getConnection();
-        $metadata = $this->entityManager->getClassMetadata(Video::class);
-        $sql = sprintf('UPDATE %1$s SET %2$s = %2$s + ? WHERE %3$s = ?',
-            $connection->quoteSingleIdentifier($metadata->getTableName()),
-            $connection->quoteSingleIdentifier($metadata->getColumnName('views')),
-            $connection->quoteSingleIdentifier($metadata->getSingleIdentifierColumnName()));
-        $connection->beginTransaction();
-        try {
-            foreach ($counts as $id => $n) {
-                $connection->executeStatement($sql, [$n, $id]);
-            }
+        $this->unitOfWork->transactional(function () use ($counts): void {
+            $this->videos->addViews($counts);
             $this->events->markFlushed(array_keys($counts));
-            $connection->commit();
-        } catch (\Throwable $e) {
-            $connection->rollBack();
-
-            throw $e;
-        }
+        });
         // The entities read before keep their old count: forget them, in the second-level cache too.
-        $cache = $this->entityManager->getCache();
-        foreach (array_keys($counts) as $id) {
-            $cache?->evictEntity(Video::class, $id);
-            $cache?->evictEntity(\Base\Entity\Thread::class, $id);
-            if ($video = $this->entityManager->getUnitOfWork()->tryGetById($id, Video::class)) {
-                $this->entityManager->refresh($video);
-            }
-        }
+        $this->videos->forgetViews(array_keys($counts));
 
         return array_sum($counts);
     }
@@ -141,7 +123,7 @@ class Views
             return;
         }
         try {
-            $this->bus->dispatch(new SuggestFeedback($type, (string) $user->getId(), $video->getId(), new \DateTimeImmutable()));
+            $this->bus->dispatch(new SuggestFeedback($type, (string) $user->getId(), $video->getId(), Utc::now()));
         } catch (\Throwable) {
             // The suggestions lose a gesture; the page does not fail for it.
         }
