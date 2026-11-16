@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 1.0.0
+## 2.0.0
 
 omnibase/video is a video platform on omnisense/omnibase: members send their films and the platform runs them, visitors
 watch, rate, comment and keep lists; channels, subscriptions, views, suggestions and moderation. It names only `Base\`
