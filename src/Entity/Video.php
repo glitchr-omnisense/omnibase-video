@@ -13,8 +13,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Base\Mapping as ORM;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Typesense\Bundle\ORM\Transformer\PropertyReader;
 use Typesense\Bundle\TypesenseInterface;
-use Typesense\Bundle\TypesenseTrait;
 
 /**
  * A film. An omnibase thread - its title, its description (the content),
@@ -38,8 +38,6 @@ use Typesense\Bundle\TypesenseTrait;
 #[DiscriminatorEntry(value: 'video')]
 class Video extends Thread implements LinkableInterface, TypesenseInterface
 {
-    use TypesenseTrait;
-
     public const PROCESSING_NONE = 'none';         // nothing to do: a remote or embedded film
     public const PROCESSING_UPLOADED = 'uploaded'; // the file is in, the transcoding is queued
     public const PROCESSING_RUNNING = 'running';
@@ -73,6 +71,12 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
     public function __typesense(): ?string
     {
         return $this->getTitle();
+    }
+
+    /** What glitchr/typesense-bundle's TypesenseTrait did, deprecated since its 2.0: the bundle's own reader. */
+    public function __typesenseGetter(string $propertyName, array $propertyInfo): mixed
+    {
+        return PropertyReader::read($this, $propertyName, $propertyInfo);
     }
 
     #[ORM\ManyToOne(targetEntity: Channel::class, inversedBy: 'videos')]
@@ -159,7 +163,7 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
     #[ORM\Column(length: 255, nullable: true)]
     protected ?string $venue = null;
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
     protected ?\DateTimeInterface $recordedAt = null;
 
     public function __construct(?User $owner = null, ?Thread $parent = null, ?string $title = null, ?string $slug = null)
@@ -331,7 +335,8 @@ class Video extends Thread implements LinkableInterface, TypesenseInterface
     public function setVenue(?string $venue): self { $this->venue = $venue ?: null; return $this; }
 
     public function getRecordedAt(): ?\DateTimeInterface { return $this->recordedAt; }
-    public function setRecordedAt(?\DateTimeInterface $recordedAt): self { $this->recordedAt = $recordedAt; return $this; }
+    /** Kept as a \DateTimeImmutable, the column's type (DBAL deprecates the mutable date): any date is given. */
+    public function setRecordedAt(?\DateTimeInterface $recordedAt): self { $this->recordedAt = null === $recordedAt ? null : \DateTimeImmutable::createFromInterface($recordedAt); return $this; }
 
     public function getTakenDownAt(): ?\DateTimeInterface { return $this->takenDownAt; }
     public function isTakenDown(): bool { return null !== $this->takenDownAt; }
